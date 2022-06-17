@@ -18,6 +18,11 @@
 
 namespace autolib{
 
+struct Point{
+    double x;
+    double y;
+};
+
 struct Pose{
     okapi::QLength x;
     okapi::QLength y;

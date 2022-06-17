@@ -1,5 +1,5 @@
 #include "main.h"
-// #include "autolib/api.hpp"
+#include "autolib/api.hpp"
 
 /**
  * A callback function for LLEMU's center button.

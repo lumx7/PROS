@@ -16,6 +16,8 @@
 
 #include "autolib/util/messages.hpp"
 #include "autolib/auto/pathGenerator.hpp"
+#include "okapi/api/chassis/controller/odomChassisController.hpp"
+#include "okapi/api/odometry/odomState.hpp"
 #include "okapi/api/units/QLength.hpp"
 #include "okapi/api/units/RQuantity.hpp"
 #include <cmath>
@@ -65,7 +67,7 @@ class PurePursuit {
      * @param  {PurePursuitTriangle} triangle                      : 
      * @param  {std::shared_ptr<OdomChassisController>} controller : 
      */
-    static void updateChassis( const double &reqVelocity, const PurePursuitTriangle &triangle, const std::shared_ptr<OdomChassisController> &controller );
+    static void updateChassis( const double &reqVelocity, const PurePursuitTriangle &triangle, const std::shared_ptr<okapi::OdomChassisController> &controller );
 
     protected:
     const std::vector<IndexedDistancePosePath> paths;
