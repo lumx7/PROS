@@ -1,5 +1,19 @@
 #include "main.h"
 #include "autolib/api.hpp"
+#include "autolib/auto/purePursuit.hpp"
+#include "okapi/api/chassis/controller/chassisController.hpp"
+#include "okapi/api/chassis/controller/chassisControllerPid.hpp"
+#include "okapi/api/chassis/controller/defaultOdomChassisController.hpp"
+#include "okapi/api/chassis/controller/odomChassisController.hpp"
+#include "okapi/api/chassis/model/chassisModel.hpp"
+#include "okapi/api/chassis/model/skidSteerModel.hpp"
+#include "okapi/api/odometry/odomState.hpp"
+#include "okapi/api/odometry/odometry.hpp"
+#include "okapi/api/odometry/twoEncoderOdometry.hpp"
+#include "okapi/api/units/QAngle.hpp"
+#include "okapi/api/units/QLength.hpp"
+#include "okapi/api/util/timeUtil.hpp"
+#include <initializer_list>
 
 /**
  * A callback function for LLEMU's center button.
@@ -28,6 +42,7 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+	
 }
 
 /**
@@ -59,7 +74,21 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	pros::Motor left_mtr(1);
+	pros::Motor right_mtr(2); 
+	okapi::SkidSteerModel model{left_mtr,right_mtr,left_mtr.get_encoder_units(), right_mtr.get_encoder_units(), 200,10};
+	okapi::TimeUtil timeUtil();
+	okapi::TwoEncoderOdometry odom();
+	okapi::ChassisControllerPID controller();
+	okapi::DefaultOdomChassisController control{timeUtil(),odom,};
+	okapi::PathfinderLimits lims {5.0,3.0,4.0};
+	autolib::PathGenerator pathGen(lims);
+	std::initializer_list<autolib::Pose> list{autolib::Pose{okapi::QLength(5.0), okapi::QLength(1.0), okapi::QAngle(1.0)}};
+	pathGen.generatePath(list, "fucking idk");
+	autolib::PurePursuit pp(pathGen.getPaths(), okapi::QLength(1.0));
+	pp.updateChassis(const double &reqVelocity, pp.run(control.getState(), "fucking idk"), control);//how do we put this in a loop
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -75,11 +104,15 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+	
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
 	pros::Motor left_mtr(1);
 	pros::Motor right_mtr(2);
+	
 
 	while (true) {
+		
+		
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
